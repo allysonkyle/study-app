@@ -126,9 +126,18 @@
       z-index: 10;
     }
     .conversations-dropdown.open {
-      display: block;
+      display: flex;
+      flex-direction: column;
+    }
+    .conversations-list {
+      overflow-y: auto;
+      max-height: 280px;
     }
     .conversation-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
       padding: 12px 14px;
       border-bottom: 1px solid var(--border);
       cursor: pointer;
@@ -139,6 +148,49 @@
     }
     .conversation-item:hover {
       background: var(--bg-tertiary);
+    }
+    .conversation-item-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .conv-delete-btn {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+      transition: background 0.2s, color 0.2s;
+    }
+    .conv-delete-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+    }
+    .conversations-clear {
+      padding: 10px 14px;
+      margin: 8px;
+      margin-bottom: 0;
+      font-size: 0.8rem;
+      font-weight: 500;
+      font-family: inherit;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .conversations-clear:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.3);
     }
     .conversation-item.active {
       background: hsl(var(--bg-hue), 50%, 25%);
@@ -335,6 +387,7 @@
         <div class="conversations-list" id="conversationList">
           <div class="conversations-empty" id="emptyState">No conversations yet</div>
         </div>
+        <button class="conversations-clear" id="clearConversationsBtn" style="display:none">Clear all</button>
       </div>
     </div>
   </div>
@@ -572,22 +625,30 @@ let conversationsCache = [];
 function renderConversations(conversations) {
   conversationsCache = conversations;
   const listEl = document.getElementById('conversationList');
+  const clearBtn = document.getElementById('clearConversationsBtn');
 
   if (!conversations || conversations.length === 0) {
     listEl.innerHTML = '<div class="conversations-empty" id="emptyState">No conversations yet</div>';
+    if (clearBtn) clearBtn.style.display = 'none';
     return;
   }
+
+  if (clearBtn) clearBtn.style.display = 'block';
 
   listEl.innerHTML = conversations.map(c => {
     const date = new Date(c.created_at);
     const dateStr = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
     const safeTopic = (c.topic || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     return `<div class="conversation-item" data-id="${c.id}">
-      <div class="conversation-topic">${safeTopic}</div>
-      <div class="conversation-date">${dateStr}</div>
+      <div class="conversation-item-content">
+        <div class="conversation-topic">${safeTopic}</div>
+        <div class="conversation-date">${dateStr}</div>
+      </div>
+      <button class="conv-delete-btn" data-id="${c.id}" aria-label="Delete">×</button>
     </div>`;
   }).join('');
 }
+
 
 async function loadConversations() {
   try {
@@ -617,6 +678,16 @@ document.addEventListener('click', (e) => {
 });
 
 document.getElementById('conversationList').addEventListener('click', (e) => {
+  const deleteBtn = e.target.closest('.conv-delete-btn');
+  if (deleteBtn) {
+    e.stopPropagation();
+    const id = deleteBtn.dataset.id;
+    const local = getFromLocalStorage().filter(c => String(c.id) !== id);
+    saveToLocalStorage(local);
+    renderConversations(local);
+    document.getElementById('output').innerHTML = '';
+    return;
+  }
   const item = e.target.closest('.conversation-item');
   if (!item) return;
   const id = item.dataset.id;
@@ -627,6 +698,13 @@ document.getElementById('conversationList').addEventListener('click', (e) => {
   document.getElementById('topicInput').value = c.topic;
   document.getElementById('output').innerHTML = c.response;
   document.getElementById('conversationsDropdown').classList.remove('open');
+});
+
+document.getElementById('clearConversationsBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  saveToLocalStorage([]);
+  renderConversations([]);
+  document.getElementById('output').innerHTML = '';
 });
 
 loadConversations();
