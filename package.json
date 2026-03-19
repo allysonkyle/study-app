@@ -1,0 +1,14 @@
+{
+  "name": "ai-study-helper",
+  "version": "1.0.0",
+  "description": "AI Study Helper with conversation history",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.6.0",
+    "express": "^4.21.0"
+  }
+}

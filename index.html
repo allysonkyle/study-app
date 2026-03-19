@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Study Helper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%);
+    }
+    .container {
+      width: 100%;
+      max-width: 520px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 20px -5px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .subtitle {
+      margin: 0 0 28px;
+      font-size: 0.9rem;
+      color: #64748b;
+    }
+    #topicInput {
+      width: 100%;
+      padding: 14px 18px;
+      font-size: 1rem;
+      font-family: inherit;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: #f8fafc;
+      color: #1e293b;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    #topicInput:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+    #topicInput::placeholder {
+      color: #94a3b8;
+    }
+    .generate-row {
+      margin-top: 16px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: inherit;
+      color: #fff;
+      background: #3b82f6;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    .topics {
+      margin-top: 32px;
+      text-align: left;
+    }
+    .topics-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+    .topic-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .topic-chips span {
+      display: inline-block;
+      padding: 8px 14px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #475569;
+      background: #f1f5f9;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .topic-chips span:hover {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+    #output {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid #f1f5f9;
+      text-align: left;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    #output h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 0 0 10px;
+    }
+    #output h3:not(:first-child) {
+      margin-top: 20px;
+    }
+    #output ul {
+      margin: 0 0 16px;
+      padding-left: 20px;
+      color: #475569;
+    }
+    #output p {
+      margin: 0;
+      color: #64748b;
+    }
+    #output .generating {
+      color: #94a3b8;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>AI Study Helper</h1>
+  <p class="subtitle">Enter a topic or pick one below to get a summary and practice question</p>
+
+  <input id="topicInput" placeholder="e.g. photosynthesis, World War II, derivatives...">
+
+  <div class="generate-row">
+    <button onclick="generate()">Generate</button>
+  </div>
+
+  <div class="topics">
+    <div class="topics-label">Popular Topics</div>
+    <div class="topic-chips">
+      <span onclick="setTopic('derivatives')">Derivatives</span>
+      <span onclick="setTopic('integrals')">Integrals</span>
+      <span onclick="setTopic('trigonometry')">Trigonometry</span>
+      <span onclick="setTopic('statistics')">Statistics</span>
+      <span onclick="setTopic('photosynthesis')">Photosynthesis</span>
+      <span onclick="setTopic('cell division')">Cell Division</span>
+      <span onclick="setTopic('DNA and genetics')">DNA & Genetics</span>
+      <span onclick="setTopic('chemical reactions')">Chemical Reactions</span>
+      <span onclick="setTopic('world war 2')">World War II</span>
+      <span onclick="setTopic('french revolution')">French Revolution</span>
+      <span onclick="setTopic('cold war')">The Cold War</span>
+      <span onclick="setTopic('shakespeare')">Shakespeare</span>
+    </div>
+  </div>
+
+  <div id="output"></div>
+</div>
+
+<script>
+function setTopic(topic) {
+  document.getElementById("topicInput").value = topic;
+}
+
+function getResponseForTopic(topic) {
+  if (topic.includes("derivative")) {
+    return `<h3>Summary</h3><ul><li>Measures rate of change</li><li>Represents slope of a curve</li><li>Written as f'(x)</li></ul><h3>Practice Question</h3><p>Find the derivative of f(x) = 3x²</p>`;
+  }
+  if (topic.includes("integral")) {
+    return `<h3>Summary</h3><ul><li>Finds area under a curve</li><li>Reverse of differentiation</li><li>Definite vs indefinite integrals</li></ul><h3>Practice Question</h3><p>Evaluate ∫ 2x dx</p>`;
+  }
+  if (topic.includes("trig")) {
+    return `<h3>Summary</h3><ul><li>Study of triangles and angles</li><li>Sine, cosine, tangent ratios</li><li>Unit circle and radians</li></ul><h3>Practice Question</h3><p>What is sin(π/2)?</p>`;
+  }
+  if (topic.includes("statistic")) {
+    return `<h3>Summary</h3><ul><li>Collecting and analyzing data</li><li>Mean, median, standard deviation</li><li>Probability and distributions</li></ul><h3>Practice Question</h3><p>Find the mean of: 4, 8, 6, 5, 7</p>`;
+  }
+  if (topic.includes("photosynthesis")) {
+    return `<h3>Summary</h3><ul><li>Plants convert sunlight into energy</li><li>6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂</li><li>Occurs in chloroplasts</li></ul><h3>Practice Question</h3><p>What are the two stages of photosynthesis?</p>`;
+  }
+  if (topic.includes("cell") && topic.includes("division")) {
+    return `<h3>Summary</h3><ul><li>Mitosis: identical daughter cells</li><li>Meiosis: gametes, halves chromosomes</li><li>Prophase, metaphase, anaphase, telophase</li></ul><h3>Practice Question</h3><p>What is the main difference between mitosis and meiosis?</p>`;
+  }
+  if (topic.includes("dna") || topic.includes("genetic")) {
+    return `<h3>Summary</h3><ul><li>Double helix structure</li><li>Adenine, thymine, guanine, cytosine</li><li>Genes code for traits</li></ul><h3>Practice Question</h3><p>What is the complementary base to adenine in DNA?</p>`;
+  }
+  if (topic.includes("chemical") || topic.includes("reaction")) {
+    return `<h3>Summary</h3><ul><li>Atoms rearrange to form new substances</li><li>Conservation of mass</li><li>Exothermic vs endothermic</li></ul><h3>Practice Question</h3><p>Balance: H₂ + O₂ → H₂O</p>`;
+  }
+  if (topic.includes("world war") || topic.includes("wwii") || topic.includes("ww2")) {
+    return `<h3>Summary</h3><ul><li>Global war from 1939–1945</li><li>Axis vs Allies</li><li>Started with invasion of Poland</li></ul><h3>Practice Question</h3><p>What event started WWII?</p>`;
+  }
+  if (topic.includes("french revolution")) {
+    return `<h3>Summary</h3><ul><li>1789–1799, overthrow of monarchy</li><li>Storming of the Bastille</li><li>Rise of Napoleon</li></ul><h3>Practice Question</h3><p>What was the significance of the Tennis Court Oath?</p>`;
+  }
+  if (topic.includes("cold war")) {
+    return `<h3>Summary</h3><ul><li>US vs USSR, 1947–1991</li><li>Ideological conflict, no direct combat</li><li>Arms race, space race</li></ul><h3>Practice Question</h3><p>What event marked the end of the Cold War?</p>`;
+  }
+  if (topic.includes("shakespeare")) {
+    return `<h3>Summary</h3><ul><li>English playwright, 1564–1616</li><li>Hamlet, Romeo and Juliet, Macbeth</li><li>iambic pentameter, soliloquies</li></ul><h3>Practice Question</h3><p>What literary device is "To be or not to be" an example of?</p>`;
+  }
+  return `<h3>Summary</h3><ul><li>This topic is important to understand</li><li>It involves key concepts and principles</li><li>Used in many real-world applications</li></ul><h3>Practice Question</h3><p>Explain one key concept of this topic.</p>`;
+}
+
+async function saveConversation(topic, response) {
+  try {
+    await fetch('/api/conversations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topic, response }),
+    });
+  } catch (err) {
+    console.error('Failed to save conversation:', err);
+  }
+}
+
+function generate() {
+  const rawTopic = document.getElementById("topicInput").value;
+  const topic = rawTopic.toLowerCase().trim();
+  const output = document.getElementById("output");
+
+  if (!topic) return;
+
+  output.innerHTML = "<p class='generating'>Generating...</p>";
+
+  setTimeout(() => {
+    const response = getResponseForTopic(topic);
+    output.innerHTML = response;
+    saveConversation(rawTopic || topic, response);
+  }, 800);
+}
+</script>
+
+</body>
+</html>
