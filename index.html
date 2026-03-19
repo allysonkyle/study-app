@@ -8,6 +8,34 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg-hue: 220;
+      --font-scale: 1;
+    }
+    body {
+      --bg-primary: #1e293b;
+      --bg-secondary: #0f172a;
+      --bg-tertiary: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --input-bg: #0f172a;
+      --accent: #60a5fa;
+      --accent-hover: #93c5fd;
+    }
+    body.theme-light {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-tertiary: #f1f5f9;
+      --text-primary: #1e293b;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --input-bg: #f8fafc;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+    }
     * {
       box-sizing: border-box;
     }
@@ -16,7 +44,13 @@
       margin: 0;
       min-height: 100vh;
       display: flex;
-      background: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%);
+      font-size: calc(1rem * var(--font-scale));
+      background: linear-gradient(145deg, hsl(var(--bg-hue), 25%, 12%) 0%, hsl(var(--bg-hue), 30%, 8%) 100%);
+      color: var(--text-primary);
+      transition: background 0.3s;
+    }
+    body.theme-light {
+      background: linear-gradient(145deg, hsl(var(--bg-hue), 40%, 96%) 0%, hsl(var(--bg-hue), 35%, 90%) 100%);
     }
     .main {
       flex: 1;
@@ -29,130 +63,140 @@
     .container {
       width: 100%;
       max-width: 520px;
-      background: #fff;
+      background: var(--bg-primary);
       border-radius: 16px;
       padding: 40px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 20px -5px rgba(0, 0, 0, 0.08);
-      border: 1px solid rgba(0, 0, 0, 0.04);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 10px 20px -5px rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--border);
     }
-    .side-panel {
-      width: 300px;
-      flex-shrink: 0;
-      background: #fff;
-      border-left: 1px solid #e2e8f0;
-      display: flex;
-      flex-direction: column;
-    }
-    .side-panel-header {
-      padding: 20px;
-      border-bottom: 1px solid #f1f5f9;
-      font-size: 0.8rem;
+    .btn-generate {
+      padding: 12px 24px;
+      font-size: 0.95rem;
       font-weight: 600;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      font-family: inherit;
+      color: #fff;
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
     }
-    .side-panel-list {
-      flex: 1;
+    .btn-generate:hover {
+      background: var(--accent-hover);
+    }
+    .btn-generate:active {
+      transform: scale(0.98);
+    }
+    .btn-past {
+      padding: 12px 24px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: inherit;
+      color: var(--text-secondary);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.1s;
+    }
+    .btn-past:hover {
+      background: var(--border);
+      border-color: var(--text-muted);
+    }
+    .btn-past:active {
+      transform: scale(0.98);
+    }
+    .buttons-wrapper {
+      position: relative;
+    }
+    .conversations-dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 8px;
+      min-width: 280px;
+      max-height: 320px;
       overflow-y: auto;
-      padding: 12px;
+      padding: 8px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      z-index: 10;
+    }
+    .conversations-dropdown.open {
+      display: block;
     }
     .conversation-item {
       padding: 12px 14px;
-      margin-bottom: 6px;
-      background: #f8fafc;
-      border-radius: 10px;
+      border-bottom: 1px solid var(--border);
       cursor: pointer;
       transition: background 0.2s;
-      border: 1px solid transparent;
+    }
+    .conversation-item:last-child {
+      border-bottom: none;
     }
     .conversation-item:hover {
-      background: #f1f5f9;
+      background: var(--bg-tertiary);
     }
     .conversation-item.active {
-      background: #eff6ff;
-      border-color: #3b82f6;
+      background: hsl(var(--bg-hue), 50%, 25%);
+    }
+    body.theme-light .conversation-item.active {
+      background: hsl(var(--bg-hue), 60%, 93%);
     }
     .conversation-topic {
       font-weight: 500;
-      color: #1e293b;
+      color: var(--text-primary);
       font-size: 0.9rem;
     }
     .conversation-date {
       font-size: 0.75rem;
-      color: #94a3b8;
+      color: var(--text-muted);
       margin-top: 4px;
     }
-    .side-panel-empty {
+    .conversations-empty {
       padding: 24px;
       text-align: center;
-      color: #94a3b8;
+      color: var(--text-muted);
       font-size: 0.875rem;
-    }
-    @media (max-width: 900px) {
-      body {
-        flex-direction: column;
-      }
-      .side-panel {
-        width: 100%;
-        max-height: 240px;
-        border-left: none;
-        border-top: 1px solid #e2e8f0;
-      }
     }
     h1 {
       margin: 0 0 8px;
       font-size: 1.5rem;
       font-weight: 700;
-      color: #1e293b;
+      color: var(--text-primary);
     }
     .subtitle {
       margin: 0 0 28px;
       font-size: 0.9rem;
-      color: #64748b;
+      color: var(--text-muted);
     }
     #topicInput {
       width: 100%;
       padding: 14px 18px;
       font-size: 1rem;
       font-family: inherit;
-      border: 1px solid #e2e8f0;
+      border: 1px solid var(--border);
       border-radius: 10px;
-      background: #f8fafc;
-      color: #1e293b;
+      background: var(--input-bg);
+      color: var(--text-primary);
       transition: border-color 0.2s, box-shadow 0.2s;
     }
     #topicInput:focus {
       outline: none;
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px hsla(var(--bg-hue), 70%, 60%, 0.25);
     }
     #topicInput::placeholder {
-      color: #94a3b8;
+      color: var(--text-muted);
     }
     .generate-row {
       margin-top: 16px;
       display: flex;
       gap: 12px;
-      align-items: center;
-    }
-    button {
-      padding: 12px 24px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      font-family: inherit;
-      color: #fff;
-      background: #3b82f6;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
-    }
-    button:hover {
-      background: #2563eb;
-    }
-    button:active {
-      transform: scale(0.98);
+      align-items: flex-start;
     }
     .topics {
       margin-top: 32px;
@@ -161,7 +205,7 @@
     .topics-label {
       font-size: 0.8rem;
       font-weight: 600;
-      color: #64748b;
+      color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
       margin-bottom: 12px;
@@ -176,20 +220,20 @@
       padding: 8px 14px;
       font-size: 0.875rem;
       font-weight: 500;
-      color: #475569;
-      background: #f1f5f9;
+      color: var(--text-secondary);
+      background: var(--bg-tertiary);
       border-radius: 8px;
       cursor: pointer;
       transition: background 0.2s, color 0.2s;
     }
     .topic-chips span:hover {
-      background: #e2e8f0;
-      color: #1e293b;
+      background: var(--border);
+      color: var(--text-primary);
     }
     #output {
       margin-top: 28px;
       padding-top: 24px;
-      border-top: 1px solid #f1f5f9;
+      border-top: 1px solid var(--border);
       text-align: left;
       font-size: 0.95rem;
       line-height: 1.6;
@@ -197,7 +241,7 @@
     #output h3 {
       font-size: 1rem;
       font-weight: 600;
-      color: #1e293b;
+      color: var(--text-primary);
       margin: 0 0 10px;
     }
     #output h3:not(:first-child) {
@@ -206,19 +250,67 @@
     #output ul {
       margin: 0 0 16px;
       padding-left: 20px;
-      color: #475569;
+      color: var(--text-secondary);
     }
     #output p {
       margin: 0 0 12px;
-      color: #475569;
+      color: var(--text-secondary);
       line-height: 1.65;
     }
     #output .summary-intro {
       margin-bottom: 14px;
     }
     #output .generating {
-      color: #94a3b8;
+      color: var(--text-muted);
       font-style: italic;
+    }
+    .header-row { display: flex; justify-content: space-between; align-items: flex-start; }
+    .btn-appearance {
+      padding: 8px 12px; font-size: 0.85rem; font-weight: 500; font-family: inherit;
+      color: var(--text-secondary); background: var(--bg-tertiary); border: 1px solid var(--border);
+      border-radius: 8px; cursor: pointer; transition: background 0.2s;
+    }
+    .btn-appearance:hover { background: var(--border); }
+    .appearance-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100;
+      align-items: center; justify-content: center; padding: 24px;
+    }
+    .appearance-overlay.open { display: flex; }
+    .appearance-modal {
+      background: var(--bg-primary); border: 1px solid var(--border); border-radius: 16px;
+      padding: 28px; max-width: 380px; width: 100%; box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+    }
+    .appearance-modal h2 { margin: 0 0 20px; font-size: 1.25rem; color: var(--text-primary); }
+    .appearance-option { margin-bottom: 24px; }
+    .appearance-option label {
+      display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;
+    }
+    .theme-toggle { display: flex; gap: 8px; }
+    .theme-btn {
+      flex: 1; padding: 12px; font-size: 0.9rem; font-family: inherit; font-weight: 500;
+      border: 2px solid var(--border); border-radius: 10px; background: var(--bg-tertiary);
+      color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
+    }
+    .theme-btn:hover { border-color: var(--text-muted); color: var(--text-primary); }
+    .theme-btn.active {
+      border-color: var(--accent); background: hsla(var(--bg-hue), 50%, 30%, 0.5); color: var(--accent);
+    }
+    body.theme-light .theme-btn.active { background: hsla(var(--bg-hue), 60%, 95%, 0.8); }
+    .color-slider-wrap { display: flex; align-items: center; gap: 12px; }
+    .color-slider-wrap input[type="range"] {
+      flex: 1; height: 8px; border-radius: 4px;
+      background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+      -webkit-appearance: none; appearance: none;
+    }
+    .color-slider-wrap input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+      background: white; border: 2px solid var(--border); cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .color-preview { width: 36px; height: 36px; border-radius: 8px; border: 2px solid var(--border); flex-shrink: 0; }
+    .appearance-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .btn-close-appearance {
+      width: 100%; padding: 12px; font-size: 0.95rem; font-weight: 600; font-family: inherit;
+      border: none; border-radius: 10px; background: var(--accent); color: #fff; cursor: pointer;
     }
   </style>
 </head>
@@ -227,13 +319,24 @@
 
 <div class="main">
 <div class="container">
-  <h1>AI Study Helper</h1>
+  <div class="header-row">
+    <h1>AI Study Helper</h1>
+    <button class="btn-appearance" onclick="openAppearance()">Appearance</button>
+  </div>
   <p class="subtitle">Enter a topic or pick one below to get a summary and practice question</p>
 
   <input id="topicInput" placeholder="e.g. photosynthesis, World War II, derivatives...">
 
   <div class="generate-row">
-    <button onclick="generate()">Generate</button>
+    <button class="btn-generate" onclick="generate()">Generate</button>
+    <div class="buttons-wrapper">
+      <button class="btn-past" onclick="toggleConversations()">Past Conversations</button>
+      <div class="conversations-dropdown" id="conversationsDropdown">
+        <div class="conversations-list" id="conversationList">
+          <div class="conversations-empty" id="emptyState">No conversations yet</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="topics">
@@ -258,14 +361,120 @@
 </div>
 </div>
 
-<aside class="side-panel">
-  <div class="side-panel-header">Past Conversations</div>
-  <div class="side-panel-list" id="conversationList">
-    <div class="side-panel-empty" id="emptyState">No conversations yet</div>
+<div class="appearance-overlay" id="appearanceOverlay">
+  <div class="appearance-modal" onclick="event.stopPropagation()">
+    <h2>Appearance</h2>
+    <div class="appearance-option">
+      <label>Theme</label>
+      <div class="theme-toggle">
+        <button class="theme-btn active" id="themeDark" onclick="setTheme('dark')">Dark</button>
+        <button class="theme-btn" id="themeLight" onclick="setTheme('light')">Light</button>
+      </div>
+    </div>
+    <div class="appearance-option">
+      <label>Background color</label>
+      <div class="color-slider-wrap">
+        <input type="range" id="hueSlider" min="0" max="360" value="220" oninput="setHue(this.value)">
+        <div class="color-preview" id="colorPreview"></div>
+      </div>
+    </div>
+    <div class="appearance-option">
+      <label>Font size</label>
+      <div class="theme-toggle">
+        <button class="theme-btn" id="fontSmall" onclick="setFontSize('small')">Small</button>
+        <button class="theme-btn active" id="fontMedium" onclick="setFontSize('medium')">Medium</button>
+        <button class="theme-btn" id="fontLarge" onclick="setFontSize('large')">Large</button>
+      </div>
+    </div>
+    <div class="appearance-footer">
+      <button class="btn-close-appearance" onclick="closeAppearance()">Done</button>
+    </div>
   </div>
-</aside>
+</div>
 
 <script>
+const APPEARANCE_KEY = 'study-helper-appearance';
+
+function getAppearance() {
+  try {
+    const raw = localStorage.getItem(APPEARANCE_KEY);
+    return raw ? JSON.parse(raw) : { theme: 'dark', hue: 220, fontSize: 'medium' };
+  } catch {
+    return { theme: 'dark', hue: 220, fontSize: 'medium' };
+  }
+}
+
+function saveAppearance(obj) {
+  try {
+    localStorage.setItem(APPEARANCE_KEY, JSON.stringify(obj));
+  } catch (e) {}
+}
+
+function getFontScale(size) {
+  return { small: 0.9, medium: 1, large: 1.1 }[size] || 1;
+}
+
+function applyAppearance() {
+  const { theme, hue, fontSize } = getAppearance();
+  document.documentElement.style.setProperty('--bg-hue', hue);
+  document.documentElement.style.setProperty('--font-scale', getFontScale(fontSize));
+  document.body.classList.toggle('theme-light', theme === 'light');
+  const slider = document.getElementById('hueSlider');
+  const preview = document.getElementById('colorPreview');
+  if (slider) slider.value = hue;
+  if (preview) preview.style.background = theme === 'light' ? `hsl(${hue}, 40%, 93%)` : `hsl(${hue}, 35%, 15%)`;
+  const darkBtn = document.getElementById('themeDark');
+  const lightBtn = document.getElementById('themeLight');
+  if (darkBtn) darkBtn.classList.toggle('active', theme === 'dark');
+  if (lightBtn) lightBtn.classList.toggle('active', theme === 'light');
+  const fontMap = { fontSmall: 'small', fontMedium: 'medium', fontLarge: 'large' };
+  Object.entries(fontMap).forEach(([id, val]) => {
+    const btn = document.getElementById(id);
+    if (btn) btn.classList.toggle('active', (fontSize || 'medium') === val);
+  });
+}
+
+function setFontSize(size) {
+  const a = getAppearance();
+  a.fontSize = size;
+  saveAppearance(a);
+  applyAppearance();
+}
+
+function openAppearance() {
+  applyAppearance();
+  document.getElementById('appearanceOverlay').classList.add('open');
+}
+
+function closeAppearance() {
+  document.getElementById('appearanceOverlay').classList.remove('open');
+}
+
+function setTheme(theme) {
+  const a = getAppearance();
+  a.theme = theme;
+  saveAppearance(a);
+  applyAppearance();
+}
+
+function setHue(val) {
+  const hue = parseInt(val, 10);
+  const a = getAppearance();
+  a.hue = hue;
+  saveAppearance(a);
+  document.documentElement.style.setProperty('--bg-hue', hue);
+  const isLight = document.body.classList.contains('theme-light');
+  document.getElementById('colorPreview').style.background = isLight
+    ? `hsl(${hue}, 40%, 93%)`
+    : `hsl(${hue}, 35%, 15%)`;
+}
+
+document.getElementById('appearanceOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'appearanceOverlay') closeAppearance();
+});
+
+applyAppearance();
+
 function setTopic(topic) {
   document.getElementById("topicInput").value = topic;
 }
@@ -365,7 +574,7 @@ function renderConversations(conversations) {
   const listEl = document.getElementById('conversationList');
 
   if (!conversations || conversations.length === 0) {
-    listEl.innerHTML = '<div class="side-panel-empty" id="emptyState">No conversations yet</div>';
+    listEl.innerHTML = '<div class="conversations-empty" id="emptyState">No conversations yet</div>';
     return;
   }
 
@@ -394,7 +603,19 @@ async function loadConversations() {
   renderConversations(getFromLocalStorage());
 }
 
-// Event delegation: one listener on the list handles all clicks
+function toggleConversations() {
+  const dropdown = document.getElementById('conversationsDropdown');
+  dropdown.classList.toggle('open');
+}
+
+document.addEventListener('click', (e) => {
+  const dropdown = document.getElementById('conversationsDropdown');
+  const wrapper = document.querySelector('.buttons-wrapper');
+  if (dropdown.classList.contains('open') && wrapper && !wrapper.contains(e.target)) {
+    dropdown.classList.remove('open');
+  }
+});
+
 document.getElementById('conversationList').addEventListener('click', (e) => {
   const item = e.target.closest('.conversation-item');
   if (!item) return;
@@ -405,6 +626,7 @@ document.getElementById('conversationList').addEventListener('click', (e) => {
   item.classList.add('active');
   document.getElementById('topicInput').value = c.topic;
   document.getElementById('output').innerHTML = c.response;
+  document.getElementById('conversationsDropdown').classList.remove('open');
 });
 
 loadConversations();
