@@ -16,10 +16,15 @@
       margin: 0;
       min-height: 100vh;
       display: flex;
+      background: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%);
+    }
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
       align-items: center;
       justify-content: center;
       padding: 24px;
-      background: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%);
     }
     .container {
       width: 100%;
@@ -29,6 +34,71 @@
       padding: 40px;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 20px -5px rgba(0, 0, 0, 0.08);
       border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+    .side-panel {
+      width: 300px;
+      flex-shrink: 0;
+      background: #fff;
+      border-left: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+    }
+    .side-panel-header {
+      padding: 20px;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .side-panel-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+    .conversation-item {
+      padding: 12px 14px;
+      margin-bottom: 6px;
+      background: #f8fafc;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+      border: 1px solid transparent;
+    }
+    .conversation-item:hover {
+      background: #f1f5f9;
+    }
+    .conversation-item.active {
+      background: #eff6ff;
+      border-color: #3b82f6;
+    }
+    .conversation-topic {
+      font-weight: 500;
+      color: #1e293b;
+      font-size: 0.9rem;
+    }
+    .conversation-date {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+    .side-panel-empty {
+      padding: 24px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.875rem;
+    }
+    @media (max-width: 900px) {
+      body {
+        flex-direction: column;
+      }
+      .side-panel {
+        width: 100%;
+        max-height: 240px;
+        border-left: none;
+        border-top: 1px solid #e2e8f0;
+      }
     }
     h1 {
       margin: 0 0 8px;
@@ -139,8 +209,12 @@
       color: #475569;
     }
     #output p {
-      margin: 0;
-      color: #64748b;
+      margin: 0 0 12px;
+      color: #475569;
+      line-height: 1.65;
+    }
+    #output .summary-intro {
+      margin-bottom: 14px;
     }
     #output .generating {
       color: #94a3b8;
@@ -151,6 +225,7 @@
 
 <body>
 
+<div class="main">
 <div class="container">
   <h1>AI Study Helper</h1>
   <p class="subtitle">Enter a topic or pick one below to get a summary and practice question</p>
@@ -181,6 +256,14 @@
 
   <div id="output"></div>
 </div>
+</div>
+
+<aside class="side-panel">
+  <div class="side-panel-header">Past Conversations</div>
+  <div class="side-panel-list" id="conversationList">
+    <div class="side-panel-empty" id="emptyState">No conversations yet</div>
+  </div>
+</aside>
 
 <script>
 function setTopic(topic) {
@@ -189,57 +272,144 @@ function setTopic(topic) {
 
 function getResponseForTopic(topic) {
   if (topic.includes("derivative")) {
-    return `<h3>Summary</h3><ul><li>Measures rate of change</li><li>Represents slope of a curve</li><li>Written as f'(x)</li></ul><h3>Practice Question</h3><p>Find the derivative of f(x) = 3x²</p>`;
+    return `<h3>Summary</h3><p class="summary-intro">Derivatives are a fundamental concept in calculus that describe how a quantity changes in response to changes in another quantity. They are essential for understanding motion, optimization, and rates of change in science and engineering.</p><p><strong>Key points:</strong></p><ul><li>Measures the instantaneous rate of change of a function</li><li>Geometrically represents the slope of the tangent line to a curve at a point</li><li>Written as f'(x), dy/dx, or Df(x)</li><li>Power rule: derivative of xⁿ is nxⁿ⁻¹</li><li>Used for finding maximum and minimum values of functions</li></ul><h3>Practice Question</h3><p>Find the derivative of f(x) = 3x²</p>`;
   }
   if (topic.includes("integral")) {
-    return `<h3>Summary</h3><ul><li>Finds area under a curve</li><li>Reverse of differentiation</li><li>Definite vs indefinite integrals</li></ul><h3>Practice Question</h3><p>Evaluate ∫ 2x dx</p>`;
+    return `<h3>Summary</h3><p class="summary-intro">Integrals are the inverse operation of derivatives and are used to find the total accumulation of a quantity, such as area under a curve, distance traveled, or total change. They form the second main branch of calculus alongside differentiation.</p><p><strong>Key points:</strong></p><ul><li>Definite integrals compute the area under a curve between two bounds</li><li>Indefinite integrals find the antiderivative (family of functions)</li><li>Fundamental Theorem of Calculus links derivatives and integrals</li><li>Integration techniques include substitution and integration by parts</li><li>Applications include physics, economics, and probability</li></ul><h3>Practice Question</h3><p>Evaluate ∫ 2x dx</p>`;
   }
   if (topic.includes("trig")) {
-    return `<h3>Summary</h3><ul><li>Study of triangles and angles</li><li>Sine, cosine, tangent ratios</li><li>Unit circle and radians</li></ul><h3>Practice Question</h3><p>What is sin(π/2)?</p>`;
+    return `<h3>Summary</h3><p class="summary-intro">Trigonometry is the study of relationships between angles and sides of triangles, extending to circular functions used throughout mathematics, physics, and engineering. It connects geometry to periodic phenomena like waves and oscillations.</p><p><strong>Key points:</strong></p><ul><li>Sine (sin), cosine (cos), and tangent (tan) are the primary ratios</li><li>The unit circle relates angles to coordinates: cos θ = x, sin θ = y</li><li>Angles can be measured in degrees or radians (π radians = 180°)</li><li>Pythagorean identity: sin²θ + cos²θ = 1</li><li>Used in modeling waves, sound, light, and circular motion</li></ul><h3>Practice Question</h3><p>What is sin(π/2)?</p>`;
   }
   if (topic.includes("statistic")) {
-    return `<h3>Summary</h3><ul><li>Collecting and analyzing data</li><li>Mean, median, standard deviation</li><li>Probability and distributions</li></ul><h3>Practice Question</h3><p>Find the mean of: 4, 8, 6, 5, 7</p>`;
+    return `<h3>Summary</h3><p class="summary-intro">Statistics is the science of collecting, analyzing, and interpreting data to make informed decisions. It provides tools to summarize information, identify patterns, and draw conclusions from samples about larger populations.</p><p><strong>Key points:</strong></p><ul><li>Descriptive statistics: mean, median, mode, standard deviation</li><li>Probability distributions model random phenomena</li><li>Inferential statistics use samples to estimate population parameters</li><li>Hypothesis testing evaluates the strength of evidence</li><li>Applications in research, business, medicine, and public policy</li></ul><h3>Practice Question</h3><p>Find the mean of: 4, 8, 6, 5, 7</p>`;
   }
   if (topic.includes("photosynthesis")) {
-    return `<h3>Summary</h3><ul><li>Plants convert sunlight into energy</li><li>6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂</li><li>Occurs in chloroplasts</li></ul><h3>Practice Question</h3><p>What are the two stages of photosynthesis?</p>`;
+    return `<h3>Summary</h3><p class="summary-intro">Photosynthesis is the process by which plants, algae, and some bacteria convert light energy from the sun into chemical energy stored in glucose. It is the foundation of most food chains and produces the oxygen we breathe.</p><p><strong>Key points:</strong></p><ul><li>Overall equation: 6CO₂ + 6H₂O + light → C₆H₁₂O₆ + 6O₂</li><li>Light-dependent reactions occur in thylakoids and produce ATP and NADPH</li><li>Calvin cycle (light-independent) uses that energy to fix CO₂ into sugar</li><li>Chlorophyll in chloroplasts absorbs light, mainly in red and blue wavelengths</li><li>Green plants reflect green light, which is why they appear green</li></ul><h3>Practice Question</h3><p>What are the two stages of photosynthesis?</p>`;
   }
   if (topic.includes("cell") && topic.includes("division")) {
-    return `<h3>Summary</h3><ul><li>Mitosis: identical daughter cells</li><li>Meiosis: gametes, halves chromosomes</li><li>Prophase, metaphase, anaphase, telophase</li></ul><h3>Practice Question</h3><p>What is the main difference between mitosis and meiosis?</p>`;
+    return `<h3>Summary</h3><p class="summary-intro">Cell division is the process by which a parent cell divides to produce two or more daughter cells. It is essential for growth, repair, and reproduction. There are two main types: mitosis for body cells and meiosis for reproductive cells.</p><p><strong>Key points:</strong></p><ul><li>Mitosis produces two genetically identical daughter cells with the same chromosome number</li><li>Meiosis produces four gametes with half the chromosomes, enabling sexual reproduction</li><li>Both follow phases: prophase, metaphase, anaphase, telophase (plus cytokinesis)</li><li>Mitosis is used for growth and tissue repair; meiosis only in reproductive organs</li><li>Errors in cell division can lead to cancer or genetic disorders</li></ul><h3>Practice Question</h3><p>What is the main difference between mitosis and meiosis?</p>`;
   }
   if (topic.includes("dna") || topic.includes("genetic")) {
-    return `<h3>Summary</h3><ul><li>Double helix structure</li><li>Adenine, thymine, guanine, cytosine</li><li>Genes code for traits</li></ul><h3>Practice Question</h3><p>What is the complementary base to adenine in DNA?</p>`;
+    return `<h3>Summary</h3><p class="summary-intro">DNA (deoxyribonucleic acid) is the molecule that carries genetic instructions for the development, functioning, growth, and reproduction of all known organisms. Genetics is the study of how these traits are inherited and expressed.</p><p><strong>Key points:</strong></p><ul><li>Double helix structure discovered by Watson and Crick</li><li>Four bases: adenine (A), thymine (T), guanine (G), cytosine (C); A pairs with T, G with C</li><li>Genes are segments of DNA that code for proteins</li><li>DNA replicates before cell division to pass genetic information</li><li>Mutations are changes in DNA sequence that can affect traits</li></ul><h3>Practice Question</h3><p>What is the complementary base to adenine in DNA?</p>`;
   }
   if (topic.includes("chemical") || topic.includes("reaction")) {
-    return `<h3>Summary</h3><ul><li>Atoms rearrange to form new substances</li><li>Conservation of mass</li><li>Exothermic vs endothermic</li></ul><h3>Practice Question</h3><p>Balance: H₂ + O₂ → H₂O</p>`;
+    return `<h3>Summary</h3><p class="summary-intro">Chemical reactions are processes in which substances (reactants) are transformed into different substances (products) through the breaking and forming of chemical bonds. They follow the law of conservation of mass: matter cannot be created or destroyed.</p><p><strong>Key points:</strong></p><ul><li>Reactants are written on the left, products on the right of the equation</li><li>Equations must be balanced so the same number of each atom appears on both sides</li><li>Exothermic reactions release energy (e.g., combustion); endothermic absorb energy</li><li>Types include synthesis, decomposition, single and double replacement, combustion</li><li>Catalysts speed up reactions without being consumed</li></ul><h3>Practice Question</h3><p>Balance: H₂ + O₂ → H₂O</p>`;
   }
   if (topic.includes("world war") || topic.includes("wwii") || topic.includes("ww2")) {
-    return `<h3>Summary</h3><ul><li>Global war from 1939–1945</li><li>Axis vs Allies</li><li>Started with invasion of Poland</li></ul><h3>Practice Question</h3><p>What event started WWII?</p>`;
+    return `<h3>Summary</h3><p class="summary-intro">World War II (1939–1945) was the largest and deadliest conflict in human history, involving most of the world's nations. It was fought between the Axis powers (Germany, Italy, Japan) and the Allied powers (Britain, France, Soviet Union, US, China, and others).</p><p><strong>Key points:</strong></p><ul><li>Began September 1, 1939 with Germany's invasion of Poland</li><li>Key events: Battle of Britain, Pearl Harbor, D-Day, Holocaust, atomic bombings</li><li>Ended in Europe May 1945; Japan surrendered September 1945 after atomic bombs</li><li>Led to the United Nations, Cold War, and decolonization</li><li>Estimated 70–85 million deaths, including the Holocaust's 6 million Jews</li></ul><h3>Practice Question</h3><p>What event started WWII?</p>`;
   }
   if (topic.includes("french revolution")) {
-    return `<h3>Summary</h3><ul><li>1789–1799, overthrow of monarchy</li><li>Storming of the Bastille</li><li>Rise of Napoleon</li></ul><h3>Practice Question</h3><p>What was the significance of the Tennis Court Oath?</p>`;
+    return `<h3>Summary</h3><p class="summary-intro">The French Revolution (1789–1799) was a period of radical social and political upheaval in France that overthrew the monarchy, established a republic, and inspired similar movements across Europe. It was driven by Enlightenment ideas, financial crisis, and widespread inequality.</p><p><strong>Key points:</strong></p><ul><li>Storming of the Bastille on July 14, 1789 marked the revolution's start</li><li>Tennis Court Oath: Third Estate vowed to create a new constitution</li><li>Declaration of the Rights of Man established equality and liberty</li><li>Reign of Terror (1793–94) saw mass executions under Robespierre</li><li>Napoleon Bonaparte rose to power and declared himself Emperor in 1804</li></ul><h3>Practice Question</h3><p>What was the significance of the Tennis Court Oath?</p>`;
   }
   if (topic.includes("cold war")) {
-    return `<h3>Summary</h3><ul><li>US vs USSR, 1947–1991</li><li>Ideological conflict, no direct combat</li><li>Arms race, space race</li></ul><h3>Practice Question</h3><p>What event marked the end of the Cold War?</p>`;
+    return `<h3>Summary</h3><p class="summary-intro">The Cold War (roughly 1947–1991) was a period of geopolitical tension between the United States and the Soviet Union and their respective allies. It was characterized by ideological conflict, nuclear arms race, and proxy wars—but no direct military conflict between the superpowers.</p><p><strong>Key points:</strong></p><ul><li>Capitalism vs communism; democracy vs authoritarianism</li><li>Arms race and mutually assured destruction (MAD)</li><li>Space race: Sputnik, moon landing</li><li>Proxy wars in Korea, Vietnam, Afghanistan</li><li>Ended with fall of Berlin Wall (1989) and Soviet collapse (1991)</li></ul><h3>Practice Question</h3><p>What event marked the end of the Cold War?</p>`;
   }
   if (topic.includes("shakespeare")) {
-    return `<h3>Summary</h3><ul><li>English playwright, 1564–1616</li><li>Hamlet, Romeo and Juliet, Macbeth</li><li>iambic pentameter, soliloquies</li></ul><h3>Practice Question</h3><p>What literary device is "To be or not to be" an example of?</p>`;
+    return `<h3>Summary</h3><p class="summary-intro">William Shakespeare (1564–1616) was an English playwright, poet, and actor widely regarded as the greatest writer in the English language. His works explore universal themes of love, power, jealousy, and human nature through timeless characters and stories.</p><p><strong>Key points:</strong></p><ul><li>Wrote 37 plays (tragedies, comedies, histories) and 154 sonnets</li><li>Famous works: Hamlet, Romeo and Juliet, Macbeth, Othello, King Lear</li><li>Used iambic pentameter—five stressed/unstressed syllable pairs per line</li><li>Soliloquies reveal character thoughts; "To be or not to be" is a famous example</li><li>Coined hundreds of words and phrases still in use today</li></ul><h3>Practice Question</h3><p>What literary device is "To be or not to be" an example of?</p>`;
   }
-  return `<h3>Summary</h3><ul><li>This topic is important to understand</li><li>It involves key concepts and principles</li><li>Used in many real-world applications</li></ul><h3>Practice Question</h3><p>Explain one key concept of this topic.</p>`;
+  return `<h3>Summary</h3><p class="summary-intro">This topic covers important concepts and principles that are widely used in both academic and real-world contexts. Understanding the fundamentals will help you build a strong foundation for deeper study.</p><p><strong>Key points:</strong></p><ul><li>This topic involves core concepts that connect to broader themes</li><li>Key principles apply across multiple applications</li><li>Understanding fundamentals enables problem-solving in related areas</li></ul><h3>Practice Question</h3><p>Explain one key concept of this topic.</p>`;
+}
+
+const STORAGE_KEY = 'study-helper-conversations';
+
+function getFromLocalStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveToLocalStorage(conversations) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
+  } catch (err) {
+    console.error('LocalStorage save failed:', err);
+  }
 }
 
 async function saveConversation(topic, response) {
+  const newConv = {
+    id: 'local-' + Date.now(),
+    topic,
+    response,
+    created_at: new Date().toISOString(),
+  };
+
+  // Always save to localStorage immediately so it works without server
+  const local = getFromLocalStorage();
+  local.unshift(newConv);
+  saveToLocalStorage(local);
+  renderConversations(local);
+
+  // Try to save to server (when running via npm start)
   try {
-    await fetch('/api/conversations', {
+    const res = await fetch('/api/conversations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ topic, response }),
     });
-  } catch (err) {
-    console.error('Failed to save conversation:', err);
+    if (res.ok) {
+      await loadConversations();
+    }
+  } catch (_) {
+    // Server not running - localStorage already updated
   }
 }
 
-function generate() {
+let conversationsCache = [];
+
+function renderConversations(conversations) {
+  conversationsCache = conversations;
+  const listEl = document.getElementById('conversationList');
+
+  if (!conversations || conversations.length === 0) {
+    listEl.innerHTML = '<div class="side-panel-empty" id="emptyState">No conversations yet</div>';
+    return;
+  }
+
+  listEl.innerHTML = conversations.map(c => {
+    const date = new Date(c.created_at);
+    const dateStr = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    const safeTopic = (c.topic || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    return `<div class="conversation-item" data-id="${c.id}">
+      <div class="conversation-topic">${safeTopic}</div>
+      <div class="conversation-date">${dateStr}</div>
+    </div>`;
+  }).join('');
+}
+
+async function loadConversations() {
+  try {
+    const res = await fetch('/api/conversations');
+    if (res.ok) {
+      const conversations = await res.json();
+      saveToLocalStorage(conversations);
+      renderConversations(conversations);
+      return;
+    }
+  } catch (_) {}
+
+  renderConversations(getFromLocalStorage());
+}
+
+// Event delegation: one listener on the list handles all clicks
+document.getElementById('conversationList').addEventListener('click', (e) => {
+  const item = e.target.closest('.conversation-item');
+  if (!item) return;
+  const id = item.dataset.id;
+  const c = conversationsCache.find(x => String(x.id) === id);
+  if (!c) return;
+  document.querySelectorAll('.conversation-item').forEach(i => i.classList.remove('active'));
+  item.classList.add('active');
+  document.getElementById('topicInput').value = c.topic;
+  document.getElementById('output').innerHTML = c.response;
+});
+
+loadConversations();
+
+async function generate() {
   const rawTopic = document.getElementById("topicInput").value;
   const topic = rawTopic.toLowerCase().trim();
   const output = document.getElementById("output");
@@ -248,11 +418,11 @@ function generate() {
 
   output.innerHTML = "<p class='generating'>Generating...</p>";
 
-  setTimeout(() => {
-    const response = getResponseForTopic(topic);
-    output.innerHTML = response;
-    saveConversation(rawTopic || topic, response);
-  }, 800);
+  await new Promise(r => setTimeout(r, 800));
+
+  const response = getResponseForTopic(topic);
+  output.innerHTML = response;
+  await saveConversation(rawTopic || topic, response);
 }
 </script>
 
